@@ -1,0 +1,9 @@
+/* Css Create a dark theme footer container as well as links */
+.footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: #0070f3;
+    color: #fafafa;
+  }

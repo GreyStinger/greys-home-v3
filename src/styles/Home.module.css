@@ -1,9 +1,9 @@
-.container {
-  padding: 0 2rem;
+.global-container {
+  height: 95vh;
 }
 
 .main {
-  min-height: 100vh;
+  min-height: 95vh;
   padding: 4rem 0;
   flex: 1;
   display: flex;
