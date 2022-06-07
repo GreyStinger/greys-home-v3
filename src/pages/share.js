@@ -8,6 +8,9 @@ export default function PostScreen() {
     var p = document.createElement("p");
     p.textContent = text;
     p.setAttribute('id', "warningPara");
+    p.style.marginTop = "16px";
+    p.style.marginBottom = "0px";
+    p.style.paddingBottom = "0px";
     element.appendChild(p);
   }
 
@@ -60,27 +63,43 @@ export default function PostScreen() {
         var input = document.getElementById("uploadFile");
         var fileName = document.getElementById("fileName");
         fileName.textContent = input.files[0].name;
-        if (fileName.textContent.length > 20) {
-          fileName.textContent = fileName.textContent.charAt(0).toUpperCase() + fileName.textContent.slice(1).toLowerCase().substring(0, 20) + "...";
-          fileName.style.fontSize = "26px";
-        } else {
-          fileName.style.fontSize = "30px";
+        if (fileName.textContent.length > 24) {
+          fileName.textContent = fileName.textContent.charAt(0).toUpperCase() + fileName.textContent.slice(1).toLowerCase().substring(0, 24) + "...";
         }
-
         let warn_para = document.getElementById("warningPara");
 
         if (input.files[0].size > 1073741824) {
           if (!warn_para) {
             addPara("File size is too large must be under 1 GiB", document.getElementById("uploadFileContainerGlobal"));
-          }          
+          }
+          document.getElementById("btnSubmit").disabled = true;
         } else {
           if (warn_para) {
             warn_para.remove();
           }
+          document.getElementById("btnSubmit").disabled = false;
         }
       });
 
     addedEventListener = true;
+  }
+
+  async function uploadFile(event) {
+    event.preventDefault();
+    
+    var input = document.getElementById("uploadFile");
+    var scan = document.getElementById("virusScan");
+    var file = input.files[0];
+    var formData = new FormData();
+    formData.append("file", file);
+    formData.append("scan", scan.checked);
+
+    const response = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+    const json = await response.json();
+    console.log(json);
   }
 
   useEffect(() => {
@@ -89,12 +108,16 @@ export default function PostScreen() {
 
   return (
     <div className={styles["upload-container"]}>
+      <div className={styles["warning-header"]}>
+        <p>
+          <b>Warning</b> - The uploaded file will be deleted after 30 minutes.
+        </p>
+      </div>
       <form
         className={styles["upload-form"]}
-        action="/api/temp"
+        action="/api/upload"
         method="post"
         encType="multipart/form-data"
-        onSubmit="return false;"
       >
         <div className={styles["upload-file-container-global"]} id="uploadFileContainerGlobal">
           <div className={styles["upload-file-container"]}>
@@ -111,14 +134,15 @@ export default function PostScreen() {
               name="uploadFile"
               id="uploadFile"
             />
-            <br />
           </div>
         </div>
-        <input type="text" defaultValue="u10" name="time" />
+        <div className={styles["virus-check-container"]}>
+          <label htmlFor="">Virus Scan On Upload </label>
+          <input type="checkbox" defaultValue="u10" name="scan" id="virusScan"/>
+        </div>
         <br />
-        <input type="text" defaultValue="u5" name="size" />
-        <br />
-        <input type="button" /* type="submit" */ id="btnSubmit" value="Load" />
+        <input type="submit" className={styles["btn-submit"]} id="btnSubmit" value="Upload and Get Link" disabled />
+        {/* <button className={styles["btn-submit"]} id="btnSubmit" onClick={uploadFile}>Upload and Get Link</button> */}
       </form>
     </div>
   );

@@ -5,10 +5,6 @@ import Meter from "stream-meter";
 import { pipeline } from "stream";
 import { randomUUID } from "crypto";
 
-const files_alive = new Map();
-
-const valid_uploads = [("u5", "u10"), ("u2", "u30"), ("u1", "u60")];
-
 export const config = {
   api: {
     bodyParser: false,
@@ -28,7 +24,7 @@ async function r(req, uuid) {
     busboy.on("file", (fieldname, file, filename) => {
       filename = sanitizeString(filename.filename);
 
-      let write_path = path.join(__dirname, "..", "..", "..", ".." ,"public", "temp", uuid);
+      let write_path = path.join(__dirname, /* ".." , "..",*/ "..", ".." ,"public", "temp", uuid);
       fs.mkdirSync(write_path, { recursive: true });
       console.log(`Writing ${filename} too ${write_path}`);
 
@@ -77,12 +73,6 @@ async function r(req, uuid) {
 export default async function imageUploadHandler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).end();
-  }
-
-  const body = req.body;
-
-  if (!valid_uploads.includes((body.size, body.time))) {
-    return res.status(400).end();
   }
 
   const uuid = randomUUID();
