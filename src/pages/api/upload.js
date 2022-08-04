@@ -24,6 +24,7 @@ async function r(req, uuid) {
     busboy.on("file", (fieldname, file, filename) => {
       filename = sanitizeString(filename.filename);
 
+      // TODO: Add system for grabbing an environment variable for DIR and selecting a default
       let write_path = path.join(__dirname, /* ".." , "..",*/ "..", ".." ,"public", "temp", uuid);
       fs.mkdirSync(write_path, { recursive: true });
       console.log(`Writing ${filename} too ${write_path}`);
