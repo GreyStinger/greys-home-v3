@@ -120,8 +120,6 @@ export default function PostScreen() {
 
     ajax.onreadystatechange = async () => {
       if (ajax.readyState == XMLHttpRequest.DONE) {
-        alert("Upload Completed, Redirecting...");
-
         var response = JSON.parse(ajax.responseText);
 
         setCookie("uuid", response["uuid"]);
