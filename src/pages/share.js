@@ -121,7 +121,7 @@ export default function PostScreen() {
     ajax.onreadystatechange = async () => {
       if (ajax.readyState == XMLHttpRequest.DONE) {
         var response = JSON.parse(ajax.responseText);
-        uuid = response["uuid"];
+        var uuid = response["uuid"];
 
         setCookie("uuid", uuid);
         setCookie("fileName", _("uploadFile").files[0].name);
