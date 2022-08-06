@@ -1,6 +1,5 @@
 import { useEffect } from "react";
-import styles from "../styles/Tempfile.module.css";
-import { getCookie, setCookie } from "cookies-next";
+import styles from "../styles/Share.module.css";
 
 
 export default function PostScreen() {
@@ -121,12 +120,8 @@ export default function PostScreen() {
     ajax.onreadystatechange = async () => {
       if (ajax.readyState == XMLHttpRequest.DONE) {
         var response = JSON.parse(ajax.responseText);
-        var uuid = response["uuid"];
 
-        setCookie("uuid", uuid);
-        setCookie("fileName", _("uploadFile").files[0].name);
-
-        window.location.replace(`/share/${uuid}`);
+        window.location.replace(`/share/download?uuid=${response["uuid"]}&fileName=${_("uploadFile").files[0].name}`);
       }
     };
 
