@@ -25,7 +25,7 @@ async function r(req, uuid) {
       filename = sanitizeString(filename.filename);
 
       // TODO: Add system for grabbing an environment variable for DIR and selecting a default
-      let write_path = path.join(__dirname, /* ".." , "..",*/ "..", ".." ,"public", "temp", uuid);
+      let write_path = path.join(__dirname, ".." , "..", "..", ".." ,"public", "temp", uuid);
       fs.mkdirSync(write_path, { recursive: true });
       console.log(`Writing ${filename} too ${write_path}`);
 
@@ -80,5 +80,5 @@ export default async function imageUploadHandler(req, res) {
 
   let data = await r(req, uuid);
   
-  res.status(200).end(JSON.stringify({ ok: true }));
+  res.status(200).end(JSON.stringify({ ok: true, uuid: uuid }));
 }
