@@ -1,8 +1,16 @@
 import { useEffect } from "react";
 import styles from "../styles/Tempfile.module.css";
+import { getCookie, setCookie } from "cookies-next";
+
 
 export default function PostScreen() {
   let addedEventListener = false;
+
+
+  function _(el) {
+    return document.getElementById(el);
+  }
+
 
   function addPara(text, element) {
     var p = document.createElement("p");
@@ -14,122 +22,124 @@ export default function PostScreen() {
     element.appendChild(p);
   }
 
-  function addButtonListener() {
-    if (addedEventListener) return;
-
-    document
-      .getElementById("btnSubmit")
-      .addEventListener("click", function showFileSize() {
-        if (!window.FileReader) {
-          console.log("The file API isn't supported on this browser yet.");
-          return;
-        }
-
-        var input = document.getElementById("uploadFile");
-        if (!input.files) {
-          console.error(
-            "This browser doesn't seem to support the `files` property of file inputs."
-          );
-        } else if (!input.files[0]) {
-          addPara("Please select a file before clicking 'Load'");
-        } else {
-          let file = input.files[0];
-
-          addPara(
-            "File " +
-              file.name +
-              " is " +
-              (file.size < 1024
-                ? file.size + " bytes"
-                : file.size < 1048576
-                ? Math.round((file.size / 1024) * 100) / 100 + " KiB"
-                : file.size < 2147483648
-                ? Math.round((file.size / 1048576) * 100) / 100 + " MiB"
-                : Math.round((file.size / 1073741824) * 100) / 100 + "GiB") +
-              " in size"
-          );
-        }
-      });
-
-    addedEventListener = true;
-  }
 
   function addFileUploadListener() {
     if (addedEventListener) return;
 
-    document
-      .getElementById("uploadFile")
-      .addEventListener("change", function showFileName() {
-        var fileName = document.getElementById("fileName");
-        var input = document.getElementById("uploadFile");
-        fileName.textContent = input.files[0].name;
-        if (fileName.textContent.length > 24) {
-          fileName.textContent =
-            fileName.textContent.charAt(0).toUpperCase() +
-            fileName.textContent.slice(1).toLowerCase().substring(0, 24) +
-            "...";
-        }
-      
+    _("uploadFile").addEventListener("change", function showFileName() {
+      var fileName = _("fileName");
+      var input = _("uploadFile");
+
+      fileName.textContent = input.files[0].name;
+      if (fileName.textContent.length > 24) {
+        fileName.textContent =
+          fileName.textContent.charAt(0).toUpperCase() +
+          fileName.textContent.slice(1).toLowerCase().substring(0, 24) +
+          "...";
+      }
+
       checkFileSize(input);
-      });
+    });
 
     addedEventListener = true;
   }
 
+
   function checkFileSize(input) {
-    let warn_para = document.getElementById("warningPara");
+    // TODO: Add system for uncapped file size acceptance
+
+    let warn_para = _("warningPara");
 
     if (input.files[0].size > 1073741824) {
       if (!warn_para) {
         addPara(
           "File size is too large must be under 1 GiB",
-          document.getElementById("uploadFileContainerGlobal")
+          _("uploadFileContainerGlobal")
         );
       }
-      document.getElementById("btnSubmit").disabled = true;
+      _("btnSubmit").disabled = true;
 
       return false;
     } else {
       if (warn_para) {
         warn_para.remove();
       }
-      document.getElementById("btnSubmit").disabled = false;
+      _("btnSubmit").disabled = false;
     }
 
     return true;
   }
 
-  function smoothSwitch() {
-    // window.
-  }
+
+  var progressHandler = (event) => {
+    var percentLoaded = Math.round((event.loaded / event.total) * 100);
+    _("progress-percent").style.width = percentLoaded + "%";
+  };
+
+  var completionHandler = (event) => {
+    alert("Upload Completed");
+    _("popup-container").style.visibility = "hidden";
+  };
+
+  var errorHandler = (event) => {
+    alert("File upload failed");
+    _("popup-container").style.visibility = "hidden";
+  };
+
+  var abortHandler = (event) => {
+    alert("Upload aborted");
+    _("popup-container").style.visibility = "hidden";
+  };
+
 
   async function uploadFile(event) {
     event.preventDefault();
 
-    var input = document.getElementById("uploadFile");
-    var scan = document.getElementById("virusScan");
-    var file = input.files[0];
+    var input = _("uploadFile");
 
     var fileSizeCheck = await checkFileSize(input);
     if (!fileSizeCheck) {
       return;
     }
 
+    var scan = _("virusScan");
+    var file = input.files[0];
+
+    _("popup-container").style.visibility = "visible";
+
     var formData = new FormData();
     formData.append("file", file);
     formData.append("scan", scan.checked);
 
-    const response = await fetch("/api/upload", {
-      method: "POST",
-      body: formData,
-    });
-    const json = await response.json();
-    console.log(json);
+    var ajax = new XMLHttpRequest();
+
+    ajax.upload.addEventListener("progress", progressHandler, false);
+    ajax.addEventListener("load", completionHandler, false);
+    ajax.addEventListener("error", errorHandler, false);
+    ajax.addEventListener("abort", abortHandler, false);
+
+    ajax.onreadystatechange = async () => {
+      if (ajax.readyState == XMLHttpRequest.DONE) {
+        alert("Upload Completed, Redirecting...");
+
+        var response = JSON.parse(ajax.responseText);
+
+        setCookie("uuid", response["uuid"]);
+        setCookie("fileName", _("uploadFile").files[0].name);
+
+        window.location.replace(`/share/${uuid}`);
+      }
+    };
+
+    ajax.open("POST", "/api/upload");
+    await ajax.send(formData);
   }
+
 
   useEffect(() => {
     addFileUploadListener();
   });
+
 
   return (
     <div className={styles["upload-container"]}>
@@ -167,7 +177,7 @@ export default function PostScreen() {
         </div>
         <div
           className={styles["checkbox-container"]}
-          style={{ paddingTop: "20px", paddingBottom: "4px" }}
+          style={{ paddingTop: "16px", paddingBottom: "4px" }}
         >
           <label>Encrypted </label>
           <input type="checkbox" disabled />
@@ -185,6 +195,7 @@ export default function PostScreen() {
             disabled
           />
         </div>
+
         <br />
         {/* <input type="submit" className={styles["btn-submit"]} id="btnSubmit" value="Upload and Get Link" onClick={smoothSwitch} disabled /> */}
         <button
@@ -195,6 +206,20 @@ export default function PostScreen() {
           Upload and Get Link
         </button>
       </form>
+      <div className={styles["popup-container"]} id="popup-container">
+        <div className={styles["popup-label-container"]}>
+          <div className={styles["popup-label-bg"]}>
+            <p className={styles["popup-label"]} id="popup-label">
+              Uploading
+            </p>
+          </div>
+        </div>
+        <div className={styles["progress-bar"]}>
+          <span className={styles["bar"]}>
+            <span className={styles["progress"]} id="progress-percent"></span>
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
