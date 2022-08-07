@@ -191,7 +191,6 @@ export default function PostScreen() {
         </div>
 
         <br />
-        {/* <input type="submit" className={styles["btn-submit"]} id="btnSubmit" value="Upload and Get Link" onClick={smoothSwitch} disabled /> */}
         <button
           className={styles["btn-submit"]}
           id="btnSubmit"
