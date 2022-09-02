@@ -1,15 +1,12 @@
 import { useEffect } from "react";
 import styles from "../styles/Share.module.css";
 
-
 export default function PostScreen() {
   let addedEventListener = false;
-
 
   function _(el) {
     return document.getElementById(el);
   }
-
 
   function addPara(text, element) {
     var p = document.createElement("p");
@@ -20,7 +17,6 @@ export default function PostScreen() {
     p.style.paddingBottom = "0px";
     element.appendChild(p);
   }
-
 
   function addFileUploadListener() {
     if (addedEventListener) return;
@@ -42,7 +38,6 @@ export default function PostScreen() {
 
     addedEventListener = true;
   }
-
 
   function checkFileSize(input) {
     // TODO: Add system for uncapped file size acceptance
@@ -69,7 +64,6 @@ export default function PostScreen() {
     return true;
   }
 
-
   var progressHandler = (event) => {
     var percentLoaded = Math.round((event.loaded / event.total) * 100);
     _("progress-percent").style.width = percentLoaded + "%";
@@ -90,7 +84,6 @@ export default function PostScreen() {
     _("popup-container").style.visibility = "hidden";
   };
 
-
   async function uploadFile(event) {
     event.preventDefault();
 
@@ -108,6 +101,7 @@ export default function PostScreen() {
 
     var formData = new FormData();
     formData.append("file", file);
+    formData.append("fileSize", file.size);
     formData.append("scan", scan.checked);
 
     var ajax = new XMLHttpRequest();
@@ -121,7 +115,16 @@ export default function PostScreen() {
       if (ajax.readyState == XMLHttpRequest.DONE) {
         var response = JSON.parse(ajax.responseText);
 
-        window.location.replace(`/share/download?uuid=${response["uuid"]}&fileName=${_("uploadFile").files[0].name}`);
+        if (!response["ok"]) {
+          alert("File failed to write to server for some reason...");
+          return;
+        }
+
+        window.location.replace(
+          `/share/dl?uuid=${response["uuid"]}&fileName=${
+            _("uploadFile").files[0].name
+          }`
+        );
       }
     };
 
@@ -129,17 +132,15 @@ export default function PostScreen() {
     await ajax.send(formData);
   }
 
-
   useEffect(() => {
     addFileUploadListener();
   });
-
 
   return (
     <div className={styles["upload-container"]}>
       <div className={styles["warning-header"]}>
         <p>
-          <b>Warning</b> - The uploaded file will be deleted after 30 minutes.
+          <b>Warning</b> - The uploaded file will be deleted after 6 hours.
         </p>
       </div>
       <form

@@ -4,6 +4,8 @@ import Busboy from "busboy";
 import Meter from "stream-meter";
 import { pipeline } from "stream";
 import { randomUUID } from "crypto";
+import { resolve } from "path";
+import { XMLBuilder } from "fast-xml-parser";
 
 export const config = {
   api: {
@@ -16,18 +18,35 @@ function sanitizeString(str) {
   return str.trim();
 }
 
+function addToDelete(uniquePath) {
+  setTimeout(() => {
+    fs.rmSync(uniquePath, { recursive: true, force: true });
+  }, 360 * 60000);
+}
+
 async function r(req, uuid) {
   return new Promise((resolve) => {
     const busboy = Busboy({ headers: req.headers });
-    let data = {};
 
     busboy.on("file", (fieldname, file, filename) => {
       filename = sanitizeString(filename.filename);
 
       // TODO: Add system for grabbing an environment variable for DIR and selecting a default
-      let write_path = path.join(__dirname, ".." , "..", "..", ".." ,"public", "temp", uuid);
+      let write_path = path.join(
+        __dirname,
+        "..",
+        "..",
+        "..",
+        "..",
+        "public",
+        "temp",
+        uuid
+      );
+
       fs.mkdirSync(write_path, { recursive: true });
       console.log(`Writing ${filename} too ${write_path}`);
+
+      addToDelete(write_path);
 
       const file_stream = fs.createWriteStream(path.join(write_path, filename));
       let meter = Meter();
@@ -35,36 +54,40 @@ async function r(req, uuid) {
       pipeline(file, meter, file_stream, (err) => {
         if (err) {
           console.log(err);
-          return;
+          return resolve(false);
         }
 
-        console.log(`Finished writing ${filename} at ${(meter.bytes < 1024 ? meter.bytes + " bytes" : (meter.bytes < 1048576 ? Math.round(meter.bytes / 1024 * 100) / 100 + " KiB" : (meter.bytes < 2147483648 ? Math.round(meter.bytes / 1048576 * 100) / 100 + " MiB" : Math.round(meter.bytes / 1073741824 * 100) / 100 + "GiB")))}`);
+        console.log(
+          `Finished writing ${filename} at ${
+            meter.bytes < 1024
+              ? meter.bytes + " bytes"
+              : meter.bytes < 1048576
+              ? Math.round((meter.bytes / 1024) * 100) / 100 + " KiB"
+              : meter.bytes < 2147483648
+              ? Math.round((meter.bytes / 1048576) * 100) / 100 + " MiB"
+              : Math.round((meter.bytes / 1073741824) * 100) / 100 + "GiB"
+          }`
+        );
       });
 
       busboy.on("data", (data) => {
         pipeline(data, meter, file_stream, (err) => {
           if (err) {
             console.log(err);
-            return;
+            return resolve(false);
           }
-          console.log(`Finished writing ${filename} at ${(meter.bytes < 1024 ? meter.bytes + " bytes" : (meter.bytes < 1048576 ? Math.round(meter.bytes / 1024 * 100) / 100 + " KiB" : (meter.bytes < 2147483648 ? Math.round(meter.bytes / 1048576 * 100) / 100 + " MiB" : Math.round(meter.bytes / 1073741824 * 100) / 100 + "GiB")))}`);
         });
-      })
-
-      file.on("end", () => {
-        console.log("File [" + fieldname + "] Finished");
-
-        data["size"] = meter.bytes;
-        data["filename"] = filename;
-        data["uuid"] = uuid;
-        data["path"] = write_path;
-        data["url"] = `/temp/${uuid}/${filename}`;
       });
 
-      file_stream.on("close", () => {
-        console.log(`Upload of '${filename}' finished`);
-        return resolve(data);
+      req.on("close", function (err) {
+        if (!err) {
+          return resolve(true);
+        }
       });
+    });
+
+    busboy.on("field", (name, val, info) => {
+      console.log(`Field [${name}]: value: %j`, val);
     });
 
     req.pipe(busboy);
@@ -73,12 +96,17 @@ async function r(req, uuid) {
 
 export default async function imageUploadHandler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).end();
+    res.status(405).end();
+    return;
   }
 
   const uuid = randomUUID();
 
-  let data = await r(req, uuid);
-  
-  res.status(200).end(JSON.stringify({ ok: true, uuid: uuid }));
+  let ok = await r(req, uuid);
+
+  // console.log(builder.build({ ok, uuid }));
+  if (!ok) {
+    res.status(400).json({ ok });
+  }
+  res.status(200).end(JSON.stringify({ ok, uuid }));
 }

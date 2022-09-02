@@ -1,7 +1,7 @@
 .btn-submit {
-  color: #EEEEEE;
+  color: #eeeeee;
   background-color: transparent;
-  border: 2px solid #EEEEEE;
+  border: 2px solid #eeeeee;
   border-radius: 6px;
   font-size: 17px;
   padding: 10px;
@@ -13,7 +13,7 @@
 }
 
 .file-name {
-  color: #EEEEEE;
+  color: #eeeeee;
   font-size: 26px;
   font-weight: 700;
   text-align: center;
@@ -37,7 +37,7 @@
 }
 
 .upload-file-container-global p {
-  color: #F24C4C;
+  color: #f24c4c;
 }
 
 .upload-file-container {
@@ -46,22 +46,22 @@
   align-items: center;
   justify-content: center;
   float: left;
-	min-width: 220px;
+  min-width: 220px;
   max-width: 280px;
-  min-height: 100px; 
+  min-height: 100px;
   max-height: 130px;
-	border: none;
-	background: none;
-	color: inherit;
-	position: relative;
-	z-index: 1;
-  background-color: #34B3F1;
+  border: none;
+  background: none;
+  color: inherit;
+  position: relative;
+  z-index: 1;
+  background-color: #34b3f1;
   border-radius: 6px;
-  border: 3px solid #EEEEEE;
+  border: 3px solid #eeeeee;
 }
 
 .checkbox-container {
-  color: #EEEEEE;
+  color: #eeeeee;
   padding: 10px;
   flex-wrap: nowrap;
   display: flex;
@@ -74,7 +74,6 @@
   padding-right: 6px;
   font-size: 16px;
   vertical-align: middle;
-
 }
 
 .virus-check-container input {
@@ -123,7 +122,7 @@
   width: 100%;
   top: 0px;
   position: absolute;
-  background-color: #F24C4C;
+  background-color: #f24c4c;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -133,7 +132,7 @@
 }
 
 .warning-header > p {
-  color: #F7D716;
+  color: #f7d716;
   font-size: 12px;
   font-weight: 700;
   margin: 0px;
@@ -159,7 +158,6 @@
   top: 40%;
   width: 100%;
   opacity: 1;
-  /* left: 50%; */
 }
 
 .popup-label-bg {
@@ -181,6 +179,51 @@
   font-family: Arial, Helvetica, sans-serif;
 }
 
+.dl-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  align-content: center;
+  height: 16vh;
+  min-width: 60%;
+}
+
+.dl-button-container {
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  justify-content: space-evenly;
+}
+
+.dl-copy-link {
+  color: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.dl-button {
+  background-color: #34b3f1;
+  border-radius: 12px;
+  color: #fff;
+  font-size: medium;
+  font-weight: 600;
+  border-style: hidden;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-right: 20px;
+  padding-left: 20px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.dl-file-name {
+  color: #fff;
+  font-size: x-large;
+  font-weight: 600;
+}
+
+/* #34B3F1 */
+
 /* Stolen Code: */
 
 .progress-bar {
@@ -198,7 +241,7 @@
 
 .progress {
   -webkit-animation: loader 8s ease infinite;
-          animation: loader 8s ease infinite;
+  animation: loader 8s ease infinite;
   background: #fff;
   color: #fff;
   padding: 5px;
