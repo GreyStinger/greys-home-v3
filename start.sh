@@ -1,3 +1,3 @@
 rm -rf ./public/temp/*
 yarn build
-yarn start
+node server.js
