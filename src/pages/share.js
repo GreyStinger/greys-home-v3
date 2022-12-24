@@ -119,7 +119,7 @@ export default function PostScreen() {
 
                 var response = JSON.parse(ajax.responseText);
                 const url = `/share/dl?uuid=${response["uuid"]}&fileName=${
-                    _("uploadFile").files[0].name
+                    _("uploadFile").files[0].name.replace(/ /g, "-")
                 }`;
 
                 router.push(url);

@@ -13,8 +13,9 @@ export const config = {
 };
 
 function sanitizeString(str) {
-    str = str.replace(/[^a-z0-9áéíóúñü \.,_-]/gim, "");
-    return str.trim();
+    str = str.replace(/[^a-z0-9áéíóúñü \.,_-]/gim, "").trim();
+    str = str.replace(/ /g, "-");
+    return str;
 }
 
 function addToDelete(uniquePath) {
