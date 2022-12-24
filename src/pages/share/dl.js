@@ -4,6 +4,7 @@ import { useEffect } from "react";
 
 export default function Download() {
     const router = useRouter();
+    const homeUrl = "https://greyshome.co.za";
     var url = null;
 
     async function sleep(timeInMillis) {
@@ -22,7 +23,7 @@ export default function Download() {
 
         _("fileName").innerText = fileName;
         url = `/fetch/${uuid}/${fileName}`;
-        _("manualCopyLink").innerText = "https://greyshome.co.za" + url;
+        _("manualCopyLink").innerText = homeUrl + url;
     }
 
     function selectAllLink() {
@@ -38,7 +39,7 @@ export default function Download() {
         const linkBtn = _("copyLinkBtn");
         const origText = linkBtn.innerText;
         if (window.isSecureContext) {
-            navigator.clipboard.writeText(url);
+            navigator.clipboard.writeText(homeUrl + url);
             linkBtn.innerText = "Copy Success";
             linkBtn.style.color = "green";
         } else {
