@@ -20,7 +20,7 @@ function sanitizeString(str) {
 function addToDelete(uniquePath) {
     setTimeout(() => {
         fs.rmSync(uniquePath, { recursive: true, force: true });
-    }, /*43200000*/ 90000);
+    }, 43200000);
 }
 
 function getDataSizeStringFromBytes(bytes) {
