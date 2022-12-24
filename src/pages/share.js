@@ -2,6 +2,8 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import styles from "../styles/Share.module.css";
 
+import MainLayout from "../components/layout";
+
 export default function PostScreen() {
     let addedEventListener = false;
     const router = useRouter();
@@ -135,87 +137,87 @@ export default function PostScreen() {
     });
 
     return (
-        <div className={styles["upload-container"]}>
-            <div className={styles["warning-header"]}>
-                <p>
-                    <b>Warning</b> - The uploaded file will be deleted after 30
-                    minutes.
-                </p>
-            </div>
-            <form
-                className={styles["upload-form"]}
-                target="_blank"
-                action="/api/upload"
-                method="post"
-                encType="multipart/form-data"
-            >
-                <div
-                    className={styles["upload-file-container-global"]}
-                    id="uploadFileContainerGlobal"
+        <MainLayout>
+            <div className={styles["upload-container"]}>
+                <div className={styles["warning-header"]}>
+                    <p>
+                        <b>Warning</b> - The uploaded file will be deleted after 12 hours.
+                    </p>
+                </div>
+                <form
+                    className={styles["upload-form"]}
+                    target="_blank"
+                    action="/api/upload"
+                    method="post"
+                    encType="multipart/form-data"
                 >
-                    <div className={styles["upload-file-container"]}>
-                        <label
-                            className={styles["file-name"]}
-                            id="fileName"
-                            htmlFor="uploadFile"
-                        >
-                            No File
-                        </label>
+                    <div
+                        className={styles["upload-file-container-global"]}
+                        id="uploadFileContainerGlobal"
+                    >
+                        <div className={styles["upload-file-container"]}>
+                            <label
+                                className={styles["file-name"]}
+                                id="fileName"
+                                htmlFor="uploadFile"
+                            >
+                                No File
+                            </label>
+                            <input
+                                className={styles["upload-file-selector"]}
+                                type="file"
+                                name="uploadFile"
+                                id="uploadFile"
+                            />
+                        </div>
+                    </div>
+                    <div
+                        className={styles["checkbox-container"]}
+                        style={{ paddingTop: "16px", paddingBottom: "4px" }}
+                    >
+                        <label>Encrypted </label>
+                        <input type="checkbox" disabled />
+                    </div>
+                    <div
+                        className={styles["checkbox-container"]}
+                        style={{ paddingTop: "4px", paddingBottom: "22px" }}
+                    >
+                        <label htmlFor="virusScan">Virus Scan On Upload </label>
                         <input
-                            className={styles["upload-file-selector"]}
-                            type="file"
-                            name="uploadFile"
-                            id="uploadFile"
+                            type="checkbox"
+                            defaultValue="u10"
+                            name="scan"
+                            id="virusScan"
+                            disabled
                         />
                     </div>
-                </div>
-                <div
-                    className={styles["checkbox-container"]}
-                    style={{ paddingTop: "16px", paddingBottom: "4px" }}
-                >
-                    <label>Encrypted </label>
-                    <input type="checkbox" disabled />
-                </div>
-                <div
-                    className={styles["checkbox-container"]}
-                    style={{ paddingTop: "4px", paddingBottom: "22px" }}
-                >
-                    <label htmlFor="virusScan">Virus Scan On Upload </label>
-                    <input
-                        type="checkbox"
-                        defaultValue="u10"
-                        name="scan"
-                        id="virusScan"
-                        disabled
-                    />
-                </div>
-
-                <br />
-                <button
-                    className={styles["btn-submit"]}
-                    id="btnSubmit"
-                    onClick={uploadFile}
-                >
-                    Upload and Get Link
-                </button>
-            </form>
-            <div className={styles["popup-container"]} id="popup-container">
-                <div className={styles["popup-label-container"]}>
-                    <div className={styles["popup-label-bg"]}>
-                        <p className={styles["popup-label"]} id="popup-label">
-                            Uploading
-                        </p>
+                    <br />
+                    <button
+                        className={styles["btn-submit"]}
+                        id="btnSubmit"
+                        onClick={uploadFile}
+                    >
+                        Upload and Get Link
+                    </button>
+                </form>
+                <div className={styles["popup-container"]} id="popup-container">
+                    <div className={styles["popup-label-container"]}>
+                        <div className={styles["popup-label-bg"]}>
+                            <p className={styles["popup-label"]} id="popup-label">
+                                Uploading
+                            </p>
+                        </div>
+                    </div>
+                    <div className={styles["progress-bar"]}>
+                        <span className={styles["bar"]}>
+                            <span
+                                className={styles["progress"]}
+                                id="progress-percent"
+                            ></span>
+                        </span>
                     </div>
                 </div>
-                <div className={styles["progress-bar"]}>
-                    <span className={styles["bar"]}>
-                        <span
-                            className={styles["progress"]}
-                            id="progress-percent"
-                        ></span>
-                    </span>
-                </div>
             </div>
-        </div>
+        </MainLayout>
     );
 }

@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
-import Header from '../components/header.js'
+
+import MainLayout from '../components/layout'
 
 export default function Home() {
   return (
@@ -9,13 +10,13 @@ export default function Home() {
         <title>Greys Home</title>
       </Head>
 
-      <Header />
-
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to GreysHome
-        </h1>
-      </main>
+      <MainLayout>
+        <main className={styles.main}>
+          <h1 className={styles.title}>
+            Welcome to GreysHome
+          </h1>
+        </main>
+      </MainLayout>
     </div>
   )
 }

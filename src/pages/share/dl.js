@@ -2,6 +2,8 @@ import styles from "../../styles/Share.module.css";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 
+import MainLayout from "../../components/layout";
+
 export default function Download() {
     const router = useRouter();
     const homeUrl = "https://greyshome.co.za";
@@ -60,36 +62,38 @@ export default function Download() {
     });
 
     return (
-        <div className={styles["upload-container"]}>
-            <div className={styles["dl-container"]}>
-                <p id="fileName" className={styles["dl-file-name"]}>
-                    Test
-                </p>
-                <div className={styles["dl-button-container"]}>
-                    <div className={styles["vert-centre"]}>
-                        <button
-                            id="copyLinkBtn"
-                            className={styles["dl-button"]}
-                            onClick={copyToClipboard}
-                        >
-                            Copy Link
-                        </button>
+        <MainLayout>
+            <div className={styles["upload-container"]}>
+                <div className={styles["dl-container"]}>
+                    <p id="fileName" className={styles["dl-file-name"]}>
+                        Test
+                    </p>
+                    <div className={styles["dl-button-container"]}>
+                        <div className={styles["vert-centre"]}>
+                            <button
+                                id="copyLinkBtn"
+                                className={styles["dl-button"]}
+                                onClick={copyToClipboard}
+                            >
+                                Copy Link
+                            </button>
+                        </div>
+                        <div className={styles["vert-centre"]}>
+                            <button
+                                id="dlBtn"
+                                className={styles["dl-button"]}
+                                onClick={reNavigate}
+                            >
+                                Download
+                            </button>
+                        </div>
                     </div>
-                    <div className={styles["vert-centre"]}>
-                        <button
-                            id="dlBtn"
-                            className={styles["dl-button"]}
-                            onClick={reNavigate}
-                        >
-                            Download
-                        </button>
-                    </div>
+                    <h2 className={styles.manualCopyHead}>Manual Copy</h2>
+                    <pre className={styles.manualCopy}>
+                        <code id="manualCopyLink" onClick={selectAllLink}></code>
+                    </pre>
                 </div>
-                <h2 className={styles.manualCopyHead}>Manual Copy</h2>
-                <pre className={styles.manualCopy}>
-                    <code id="manualCopyLink" onClick={selectAllLink}></code>
-                </pre>
             </div>
-        </div>
+        </MainLayout>
     );
 }
