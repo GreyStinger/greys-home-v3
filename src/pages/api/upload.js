@@ -4,7 +4,6 @@ import Busboy from "busboy";
 import Meter from "stream-meter";
 import { pipeline } from "stream";
 import { randomUUID } from "crypto";
-import { resolve } from "path";
 
 export const config = {
     api: {
