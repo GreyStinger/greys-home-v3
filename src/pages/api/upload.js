@@ -4,81 +4,108 @@ import Busboy from "busboy";
 import Meter from "stream-meter";
 import { pipeline } from "stream";
 import { randomUUID } from "crypto";
+import { resolve } from "path";
 
 export const config = {
-  api: {
-    bodyParser: false,
-  },
+    api: {
+        bodyParser: false,
+    },
 };
 
 function sanitizeString(str) {
-  str = str.replace(/[^a-z0-9áéíóúñü \.,_-]/gim, "");
-  return str.trim();
+    str = str.replace(/[^a-z0-9áéíóúñü \.,_-]/gim, "");
+    return str.trim();
+}
+
+function addToDelete(uniquePath) {
+    setTimeout(() => {
+        fs.rmSync(uniquePath, { recursive: true, force: true });
+    }, /*43200000*/ 90000);
+}
+
+function getDataSizeStringFromBytes(bytes) {
+    return bytes < 1024
+        ? bytes + " bytes"
+        : bytes < 1048576
+        ? Math.round((bytes / 1024) * 100) / 100 + " KiB"
+        : bytes < 2147483648
+        ? Math.round((bytes / 1048576) * 100) / 100 + " MiB"
+        : Math.round((bytes / 1073741824) * 100) / 100 + "GiB";
 }
 
 async function r(req, uuid) {
-  return new Promise((resolve) => {
-    const busboy = Busboy({ headers: req.headers });
-    let data = {};
+    return new Promise((resolveBus, rejectBus) => {
+        const busboy = Busboy({ headers: req.headers });
 
-    busboy.on("file", (fieldname, file, filename) => {
-      filename = sanitizeString(filename.filename);
+        busboy.on("file", (fieldname, file, filename) => {
+            filename = sanitizeString(filename.filename);
 
-      // TODO: Add system for grabbing an environment variable for DIR and selecting a default
-      let write_path = path.join(__dirname, ".." , "..", "..", ".." ,"public", "temp", uuid);
-      fs.mkdirSync(write_path, { recursive: true });
-      console.log(`Writing ${filename} too ${write_path}`);
+            // TODO: Add system for grabbing an environment variable for DIR and selecting a default
+            let write_path = path.join(
+                __dirname,
+                "..",
+                "..",
+                "..",
+                "..",
+                "public",
+                "temp",
+                uuid
+            );
 
-      const file_stream = fs.createWriteStream(path.join(write_path, filename));
-      let meter = Meter();
+            fs.mkdirSync(write_path, { recursive: true });
+            console.log(`Writing ${filename} too ${write_path}`);
 
-      pipeline(file, meter, file_stream, (err) => {
-        if (err) {
-          console.log(err);
-          return;
-        }
+            addToDelete(write_path);
 
-        console.log(`Finished writing ${filename} at ${(meter.bytes < 1024 ? meter.bytes + " bytes" : (meter.bytes < 1048576 ? Math.round(meter.bytes / 1024 * 100) / 100 + " KiB" : (meter.bytes < 2147483648 ? Math.round(meter.bytes / 1048576 * 100) / 100 + " MiB" : Math.round(meter.bytes / 1073741824 * 100) / 100 + "GiB")))}`);
-      });
+            const file_stream = fs.createWriteStream(
+                path.join(write_path, filename)
+            );
+            let meter = Meter();
 
-      busboy.on("data", (data) => {
-        pipeline(data, meter, file_stream, (err) => {
-          if (err) {
-            console.log(err);
-            return;
-          }
-          console.log(`Finished writing ${filename} at ${(meter.bytes < 1024 ? meter.bytes + " bytes" : (meter.bytes < 1048576 ? Math.round(meter.bytes / 1024 * 100) / 100 + " KiB" : (meter.bytes < 2147483648 ? Math.round(meter.bytes / 1048576 * 100) / 100 + " MiB" : Math.round(meter.bytes / 1073741824 * 100) / 100 + "GiB")))}`);
+            pipeline(file, meter, file_stream, (err) => {
+                if (err) {
+                    console.log(err);
+                    rejectBus();
+                    return;
+                }
+
+                console.log(
+                    `Finished writing ${filename} at ${getDataSizeStringFromBytes(
+                        meter.bytes
+                    )}`
+                );
+            });
+
+            // busboy.on("data", (data) => {
+            //     pipeline(data, meter, file_stream, (err) => {
+            //         if (err) {
+            //             console.log(err);
+            //             return;
+            //         }
+            //     });
+            // });
+
+            req.on("close", () => {
+                resolveBus();
+            });
         });
-      })
 
-      file.on("end", () => {
-        console.log("File [" + fieldname + "] Finished");
+        busboy.on("field", (name, val, info) => {
+            console.log(`Field [${name}]: value: %j`, val);
+        });
 
-        data["size"] = meter.bytes;
-        data["filename"] = filename;
-        data["uuid"] = uuid;
-        data["path"] = write_path;
-        data["url"] = `/temp/${uuid}/${filename}`;
-      });
-
-      file_stream.on("close", () => {
-        console.log(`Upload of '${filename}' finished`);
-        return resolve(data);
-      });
+        req.pipe(busboy);
     });
-
-    req.pipe(busboy);
-  });
 }
 
 export default async function imageUploadHandler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).end();
-  }
+    if (req.method !== "POST") {
+        return res.status(405).end();
+    }
 
-  const uuid = randomUUID();
+    const uuid = randomUUID();
 
-  let data = await r(req, uuid);
-  
-  res.status(200).end(JSON.stringify({ ok: true, uuid: uuid }));
+    await r(req, uuid);
+    console.log(`Sending ok as true and uuid: ${uuid}`);
+    res.status(200).end(JSON.stringify({ ok: true, uuid: uuid }));
 }
