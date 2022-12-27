@@ -118,11 +118,10 @@ export default function PostScreen() {
 
         ajax.onreadystatechange = async () => {
             if (ajax.readyState == XMLHttpRequest.DONE) {
-
                 var response = JSON.parse(ajax.responseText);
-                const url = `/share/dl?uuid=${response["uuid"]}&fileName=${
-                    _("uploadFile").files[0].name.replace(/ /g, "-")
-                }`;
+                const url = `/share/dl?uuid=${response["uuid"]}&fileName=${_(
+                    "uploadFile"
+                ).files[0].name.replace(/ /g, "-")}`;
 
                 router.push(url);
             }
@@ -138,12 +137,13 @@ export default function PostScreen() {
 
     return (
         <MainLayout>
+            <div className={styles["warning-header"]}>
+                <p>
+                    <b>Warning</b> - The uploaded file will be deleted after 12
+                    hours.
+                </p>
+            </div>
             <div className={styles["upload-container"]}>
-                <div className={styles["warning-header"]}>
-                    <p>
-                        <b>Warning</b> - The uploaded file will be deleted after 12 hours.
-                    </p>
-                </div>
                 <form
                     className={styles["upload-form"]}
                     target="_blank"
@@ -203,7 +203,10 @@ export default function PostScreen() {
                 <div className={styles["popup-container"]} id="popup-container">
                     <div className={styles["popup-label-container"]}>
                         <div className={styles["popup-label-bg"]}>
-                            <p className={styles["popup-label"]} id="popup-label">
+                            <p
+                                className={styles["popup-label"]}
+                                id="popup-label"
+                            >
                                 Uploading
                             </p>
                         </div>

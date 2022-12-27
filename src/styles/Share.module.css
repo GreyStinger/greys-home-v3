@@ -88,14 +88,13 @@
 
 .upload-container {
     width: 100%;
-    height: 94vh;
+    height: 82vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     background-color: #293462;
     margin: 0px;
-    padding: 20px;
 }
 
 .upload-container > label {
@@ -118,11 +117,8 @@
 }
 
 .warning-header {
-    height: 22px;
-    width: 100%;
-    top: 6vh;
+    min-height: 22px;
     border-radius: 10px;
-    position: absolute;
     background-color: #f24c4c;
     display: flex;
     flex-direction: row;
@@ -130,6 +126,9 @@
     align-items: center;
     flex-wrap: nowrap;
     overflow: hidden;
+    padding: 0.4rem;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .warning-header > p {
@@ -259,6 +258,8 @@
     transform: translate3d(-50%, -50%, 0);
 }
 
+/* Not Stolen code */
+
 .vert-centre {
     display: block;
     align-items: center;
@@ -285,4 +286,10 @@
     padding: 1rem;
     padding-top: 0.5rem;
     margin: 0px;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;  
 }

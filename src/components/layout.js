@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function MainLayout({ children }) {
     return (
-        <div>
+        <div className={styles.wrapper}>
             <div className={styles.header}>
                 <Link href="/">
                     <a className={styles["header-link"]}>Home</a>
@@ -14,6 +14,7 @@ export default function MainLayout({ children }) {
                     </a>
                 </Link>
             </div>
+            <div className={styles.br} />
             {children}
         </div>
     );

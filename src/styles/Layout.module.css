@@ -1,4 +1,12 @@
 /* Css Create a dark theme header container as well as links */
+.br {
+  height: 1vh;
+}
+
+.wrapper {
+  padding: 1rem;
+}
+
 .header {
   display: flex;
   align-items: center;
