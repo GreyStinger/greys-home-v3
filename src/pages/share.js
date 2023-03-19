@@ -8,53 +8,113 @@ export default function PostScreen() {
     let addedEventListener = false;
     const router = useRouter();
 
+    /**
+     * Returns the DOM element with the specified ID.
+     * @param {string} el - The ID of the element to retrieve.
+     * @returns {HTMLElement} - The DOM element with the specified ID.
+     */
     function _(el) {
         return document.getElementById(el);
     }
 
+    /**
+     * Adds a new paragraph element with the specified text content to the given element.
+     * @param {string} text - The text content of the new paragraph element.
+     * @param {HTMLElement} element - The element to which the new paragraph element should be added.
+     */
     function addPara(text, element) {
-        var p = document.createElement("p");
+        const p = document.createElement("p");
         p.textContent = text;
-        p.setAttribute("id", "warningPara");
-        p.style.marginTop = "16px";
-        p.style.marginBottom = "0px";
-        p.style.paddingBottom = "0px";
+        p.id = "warningPara";
+        p.style.margin = "16px 0 0 0";
+        p.style.padding = "0";
         element.appendChild(p);
     }
 
+    /**
+     * Sets the filename text to display the selected file's name, and checks its size to disable submit button if it's too large.
+     * If the filename is longer than 24 characters, it shortens it and adds an ellipsis.
+     * @function
+     * @name showFileName
+     * @returns {void}
+     */
+    function showFileName() {
+        var fileName = _("fileName");
+        var input = _("uploadFile");
+
+        // Set the filename text to display the selected file's name
+        fileName.textContent = input.files[0].name;
+
+        // If the filename is longer than 24 characters, shorten it and add ellipsis
+        if (fileName.textContent.length > 24) {
+            fileName.textContent =
+                fileName.textContent.charAt(0).toUpperCase() +
+                fileName.textContent.slice(1).toLowerCase().substring(0, 24) +
+                "...";
+        }
+
+        // Check the file size and disable submit button if it's too large
+        checkFileSize(input);
+    }
+
+    /**
+     * Handles file dropping functionality on the drop area.
+     *
+     * @param {Event} event - The event object.
+     */
+    function handleDrop(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        // Get the input element
+        var input = document.getElementById("uploadFile");
+
+        // Get the dropped file
+        var file = event.dataTransfer.files[0];
+
+        // Create a new FileList object and set it to the input element's files property
+        var fileList = new DataTransfer();
+        fileList.items.add(file);
+        input.files = fileList.files;
+
+        // Show the filename and check the file size
+        showFileName();
+    }
+
+    function handleDragOver(event) {
+        event.preventDefault();
+    }
+
+    /**
+     * Attaches a listener to the file upload input, which displays the filename and checks the file size.
+     * Only attaches the listener once.
+     */
     function addFileUploadListener() {
+        // If the listener has already been added, return early to avoid adding another one
         if (addedEventListener) return;
 
-        _("uploadFile").addEventListener("change", function showFileName() {
-            var fileName = _("fileName");
-            var input = _("uploadFile");
-
-            fileName.textContent = input.files[0].name;
-            if (fileName.textContent.length > 24) {
-                fileName.textContent =
-                    fileName.textContent.charAt(0).toUpperCase() +
-                    fileName.textContent
-                        .slice(1)
-                        .toLowerCase()
-                        .substring(0, 24) +
-                    "...";
-            }
-
-            checkFileSize(input);
-        });
+        // Add a change listener to the file upload input
+        _("uploadFile").addEventListener("change", showFileName);
 
         addedEventListener = true;
     }
 
+    /**
+     * Checks if the size of the selected file is acceptable.
+     * Currently set to 1 GiB max size.
+     * @param {object} input - The input element containing the selected file
+     * @returns {boolean} - Returns true if the file size is acceptable, false otherwise
+     */
     function checkFileSize(input) {
         // TODO: Add system for uncapped file size acceptance
+        const MAX_FILE_SIZE = 1073741824; // 1 GiB in bytes
 
         let warn_para = _("warningPara");
 
-        if (input.files[0].size > 1073741824) {
+        if (input.files[0].size > MAX_FILE_SIZE) {
             if (!warn_para) {
                 addPara(
-                    "File size is too large must be under 1 GiB",
+                    "File size is too large. Must be under 1 GiB.",
                     _("uploadFileContainerGlobal")
                 );
             }
@@ -72,57 +132,81 @@ export default function PostScreen() {
     }
 
     // TODO: Add small bottom corner pop-out for each progress state capture
-    var progressHandler = (event) => {
-        var percentLoaded = Math.round((event.loaded / event.total) * 100);
+    /**
+     * Updates the progress bar based on the percentage of the file that has been uploaded.
+     * @param {ProgressEvent} event - The progress event generated by the file upload.
+     */
+    const progressHandler = (event) => {
+        const percentLoaded = Math.round((event.loaded / event.total) * 100);
         _("progress-percent").style.width = percentLoaded + "%";
     };
 
-    var completionHandler = (event) => {
+    /**
+     * Hides the file upload popup container once the upload is complete.
+     * @param {Event} event - The load event generated by the file upload.
+     */
+    const completionHandler = (event) => {
         _("popup-container").style.visibility = "hidden";
     };
 
-    var errorHandler = (event) => {
+    /**
+     * Hides the file upload popup container if there is an error during the upload.
+     * @param {Event} event - The error event generated by the file upload.
+     */
+    const errorHandler = (event) => {
         _("popup-container").style.visibility = "hidden";
     };
 
-    var abortHandler = (event) => {
+    /**
+     * Hides the file upload popup container if the upload is aborted.
+     * @param {Event} event - The abort event generated by the file upload.
+     */
+    const abortHandler = (event) => {
         _("popup-container").style.visibility = "hidden";
     };
 
+    /**
+     * Handles file upload.
+     * @param {Event} event - The event object.
+     */
     async function uploadFile(event) {
         event.preventDefault();
 
-        var input = _("uploadFile");
+        const input = _("uploadFile");
+        const fileSizeCheck = await checkFileSize(input);
 
-        var fileSizeCheck = await checkFileSize(input);
         if (!fileSizeCheck) {
             return;
         }
 
-        var scan = _("virusScan");
-        var file = input.files[0];
+        const scan = _("virusScan");
+        const file = input.files[0];
 
+        // Show popup container while uploading the file
         _("popup-container").style.visibility = "visible";
 
-        var formData = new FormData();
+        const formData = new FormData();
         formData.append("file", file);
         formData.append("fileSize", file.size);
         formData.append("scan", scan.checked);
 
-        var ajax = new XMLHttpRequest();
+        const ajax = new XMLHttpRequest();
 
+        // Add event listeners to track the progress of file upload
         ajax.upload.addEventListener("progress", progressHandler, false);
         ajax.addEventListener("load", completionHandler, false);
         ajax.addEventListener("error", errorHandler, false);
         ajax.addEventListener("abort", abortHandler, false);
 
         ajax.onreadystatechange = async () => {
-            if (ajax.readyState == XMLHttpRequest.DONE) {
-                var response = JSON.parse(ajax.responseText);
+            if (ajax.readyState === XMLHttpRequest.DONE) {
+                const response = JSON.parse(ajax.responseText);
+                // Generate download URL with file UUID and name
                 const url = `/share/dl?uuid=${response["uuid"]}&fileName=${_(
                     "uploadFile"
                 ).files[0].name.replace(/ /g, "-")}`;
 
+                // Redirect to the download page with the generated URL
                 router.push(url);
             }
         };
@@ -143,7 +227,11 @@ export default function PostScreen() {
                     hours.
                 </p>
             </div>
-            <div className={styles["upload-container"]}>
+            <div
+                className={styles["upload-container"]}
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+            >
                 <form
                     className={styles["upload-form"]}
                     target="_blank"
