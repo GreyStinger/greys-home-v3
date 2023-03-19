@@ -47,8 +47,8 @@ async function saveFileToDisk(req: any, uuid: string): Promise<void> {
 
     busboy.on(
         "file",
-        (fieldname: string, file: fs.ReadStream, filename: string) => {
-            const sanitizedFilename = sanitizeString(filename);
+        (fieldname: string, file: fs.ReadStream, filename: Busboy.FileInfo ) => {
+            const sanitizedFilename = sanitizeString(filename.filename);
 
             const writePath = path.join(
                 __dirname,
