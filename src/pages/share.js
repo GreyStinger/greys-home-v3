@@ -179,7 +179,6 @@ export default function PostScreen() {
             return;
         }
 
-        const scan = _("virusScan");
         const file = input.files[0];
 
         // Show popup container while uploading the file
@@ -188,7 +187,6 @@ export default function PostScreen() {
         const formData = new FormData();
         formData.append("file", file);
         formData.append("fileSize", file.size);
-        formData.append("scan", scan.checked);
 
         const ajax = new XMLHttpRequest();
 
@@ -259,27 +257,6 @@ export default function PostScreen() {
                             />
                         </div>
                     </div>
-                    <div
-                        className={styles["checkbox-container"]}
-                        style={{ paddingTop: "16px", paddingBottom: "4px" }}
-                    >
-                        <label>Encrypted </label>
-                        <input type="checkbox" disabled />
-                    </div>
-                    <div
-                        className={styles["checkbox-container"]}
-                        style={{ paddingTop: "4px", paddingBottom: "22px" }}
-                    >
-                        <label htmlFor="virusScan">Virus Scan On Upload </label>
-                        <input
-                            type="checkbox"
-                            defaultValue="u10"
-                            name="scan"
-                            id="virusScan"
-                            disabled
-                        />
-                    </div>
-                    <br />
                     <button
                         className={styles["btn-submit"]}
                         id="btnSubmit"
