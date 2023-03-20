@@ -3,7 +3,7 @@ import styles from '../styles/Home.module.css'
 
 import MainLayout from '../components/layout'
 
-export default function Home() {
+export default function Home(): JSX.Element {
   return (
     <div className={styles["global-container"]}>
       <Head>

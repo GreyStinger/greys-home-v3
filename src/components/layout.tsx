@@ -1,7 +1,11 @@
 import styles from "../styles/Layout.module.css";
 import Link from "next/link";
 
-export default function MainLayout({ children }) {
+interface MainLayoutProps {
+    children: React.ReactNode;
+}
+  
+export default function MainLayout({ children }: MainLayoutProps): JSX.Element {
     return (
         <div className={styles.wrapper}>
             <div className={styles.header}>
