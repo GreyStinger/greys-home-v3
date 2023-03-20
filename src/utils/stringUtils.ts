@@ -17,3 +17,5 @@ function sanitizeString(str: string): string {
 
     return str;
 }
+
+export { sanitizeString };
