@@ -4,7 +4,7 @@ import Busboy from "busboy";
 import { NextApiRequest, NextApiResponse } from "next";
 import { pipeline } from "stream";
 import { randomUUID } from "crypto";
-import { sanitizeString } from "../../utils/stringUtils"
+import { sanitizeString } from "../../utils/stringUtils";
 
 export const config = {
     api: {
@@ -43,49 +43,57 @@ function addToDelete(uniquePath: string) {
  * @returns A Promise that resolves when the file has been saved to disk.
  */
 async function saveFileToDisk(req: any, uuid: string): Promise<void> {
-    const busboy = Busboy({ headers: req.headers });
+    return new Promise((resolve, reject) => {
+        const busboy = Busboy({ headers: req.headers });
 
-    busboy.on(
-        "file",
-        (fieldname: string, file: fs.ReadStream, filename: Busboy.FileInfo ) => {
-            const sanitizedFilename = sanitizeString(filename.filename);
+        busboy.on(
+            "file",
+            (
+                fieldname: string,
+                file: fs.ReadStream,
+                filename: Busboy.FileInfo
+            ) => {
+                const sanitizedFilename = sanitizeString(filename.filename);
 
-            const writePath = path.join(
-                __dirname,
-                "..",
-                "..",
-                "..",
-                "..",
-                "public",
-                "temp",
-                uuid
-            );
+                const writePath = path.join(
+                    __dirname,
+                    "..",
+                    "..",
+                    "..",
+                    "..",
+                    "public",
+                    "temp",
+                    uuid
+                );
 
-            fs.mkdirSync(writePath, { recursive: true });
+                fs.mkdirSync(writePath, { recursive: true });
 
-            console.log(`Writing ${sanitizedFilename} to ${writePath}`);
+                console.log(`Writing ${sanitizedFilename} to ${writePath}`);
 
-            addToDelete(writePath);
+                addToDelete(writePath);
 
-            const fileStream = fs.createWriteStream(
-                path.join(writePath, sanitizedFilename)
-            );
+                const fileStream = fs.createWriteStream(
+                    path.join(writePath, sanitizedFilename)
+                );
 
-            pipeline(file, fileStream, (err) => {
-                if (err) {
-                    console.log(err);
-                }
-            });
+                pipeline(file, fileStream, (err) => {
+                    if (err) {
+                        console.log(err);
+                        reject(err);
+                    } else {
+                        console.log(
+                            `Upload of ${sanitizedFilename} is complete.`
+                        );
+                        resolve();
+                    }
+                });
+            }
+        );
 
-            req.on("close", () => {
-                console.log(`Upload of ${sanitizedFilename} is complete.`);
-            });
-        }
-    );
+        busboy.on("field", (name, val, info) => {
+            console.log(`Field [${name}]: value: %j`, val);
+        });
 
-    busboy.on("field", (name, val, info) => {
-        console.log(`Field [${name}]: value: %j`, val);
+        req.pipe(busboy);
     });
-
-    req.pipe(busboy);
 }
