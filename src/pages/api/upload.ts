@@ -6,13 +6,28 @@ import { pipeline } from "stream";
 import { randomUUID } from "crypto";
 import { sanitizeString } from "../../utils/stringUtils";
 
+/**
+ * Configuration options for the imageUploadHandler API route.
+ *
+ * @typedef {Object} uploadConfig
+ * @property {Object} api - Configuration options for the Next.js API.
+ * @property {boolean} api.bodyParser - Indicates whether to parse the request body. Set to false.
+ * @property {number} api.timeout - The timeout limit for the API in milliseconds. Set to 360000ms (6 minutes).
+ */
 export const config = {
     api: {
         bodyParser: false,
-        timeout: 360000
+        timeout: 360000,
     },
 };
 
+/**
+ * Handles an HTTP POST request for uploading an image.
+ *
+ * @param {NextApiRequest} req - The HTTP request object containing the uploaded file.
+ * @param {NextApiResponse} res - The HTTP response object to send back to the client.
+ * @returns {Promise<void>} A Promise that resolves when the file has been saved to disk and the response has been sent.
+ */
 export default async function imageUploadHandler(
     req: NextApiRequest,
     res: NextApiResponse
@@ -30,6 +45,12 @@ export default async function imageUploadHandler(
     res.status(200).json({ ok: true, uuid });
 }
 
+/**
+ * Adds a file path to a timeout queue for deletion after a specified time.
+ * 
+ * @param {string} uniquePath - The file path to add to the queue for deletion.
+ * @returns {void}
+ */
 function addToDelete(uniquePath: string) {
     setTimeout(() => {
         fs.rmSync(uniquePath, { recursive: true, force: true });
