@@ -9,6 +9,7 @@ import { sanitizeString } from "../../utils/stringUtils";
 export const config = {
     api: {
         bodyParser: false,
+        timeout: 360000
     },
 };
 
